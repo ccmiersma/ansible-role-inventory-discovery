@@ -1,0 +1,53 @@
+---
+# tasks file for inventory-discovery
+
+- name: create temporary directory
+  tempfile:
+    state: directory
+    prefix: inventory-discovery-
+  register: temp_dir
+  delegate_to: localhost
+    
+- name: Lookup ipv4
+  shell: host {{ ansible_default_ipv4.address }} | perl -lane '{  print $F[$#F] }' | perl -pne '{ s/\.$//; s/.\(.*\)// }' | head -1
+  register: reverse_lookup
+  delegate_to: localhost
+  
+    
+- name: Lookup fqdn
+  shell: host {{ ansible_fqdn }} | perl -lane '{  print $F[$#F] }' | perl -pne '{ s/\.$//; s/.\(.*\)// }'| head -1
+  register: fqdn_lookup
+  delegate_to: localhost
+  
+
+- name: Lookup host and domain
+  shell: host {{ ansible_hostname }}.{{ansible_domain}} | perl -lane '{  print $F[$#F] }' | perl -pne '{ s/\.$//; s/.\(.*\)// }' | head -1
+  register: host_domain_lookup
+  delegate_to: localhost
+  
+    
+- name: Lookup host
+  shell: host {{ ansible_hostname }} | perl -lane '{  print $F[$#F] }' | perl -pne '{ s/\.$//; s/.\(.*\)// }' | head -1
+  register: host_lookup
+  delegate_to: localhost
+  
+
+    
+- name: Lookup inventory host
+  shell: host {{ inventory_hostname }} | perl -lane '{  print $F[$#F] }' | perl -pne '{ s/\.$//; s/.\(.*\)// }' | head -1
+  register: inventory_lookup
+  delegate_to: localhost
+  
+  
+- name: write local hosts file
+  template:
+    src: templates/host_sql_inserts.sql.j2
+    dest: "{{temp_dir.path}}/{{inventory_hostname}}.sql"
+  delegate_to: localhost
+  when: inventory_hostname != "localhost"
+
+  
+- name: populate database
+  shell: sqlite3 "{{ inventory_sqlite_db }}" < "{{temp_dir.path}}/{{inventory_hostname}}.sql"
+  delegate_to: localhost
+  when: inventory_hostname != "localhost"

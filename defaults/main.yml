@@ -1,0 +1,4 @@
+---
+# defaults file for inventory-discovery
+
+inventory_sqlite_db: "{{ playbook_dir }}/inventory.db"

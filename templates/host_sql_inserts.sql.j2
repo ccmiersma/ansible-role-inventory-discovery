@@ -1,0 +1,138 @@
+.timeout 60000
+
+INSERT or IGNORE INTO ip_addresses (ip_address, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key)
+  values (
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  ); 
+
+INSERT or IGNORE INTO host_names ( fqdn, description, ip_address, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+
+INSERT or IGNORE INTO machines ( machine_id, ip_address, hostname, domain, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ ansible_machine_id | default('NA') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_hostname }}",
+  "{{ ansible_domain }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+  
+INSERT or IGNORE INTO host_names ( fqdn, description, ip_address, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ ansible_hostname }}.{{ ansible_domain }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+
+  
+{% if reverse_lookup.stdout != "" %}
+INSERT or IGNORE INTO host_names ( fqdn, description, ip_address, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ reverse_lookup.stdout }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+{% endif %}
+
+{% if host_domain_lookup.stdout != "" %}
+INSERT or IGNORE INTO ip_addresses (ip_address, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key)
+  values (
+  "{{ host_domain_lookup.stdout }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  ); 
+{% endif %}
+
+{% if fqdn_lookup.stdout != "" %}
+INSERT or IGNORE INTO ip_addresses (ip_address, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key)
+  values (
+  "{{ fqdn_lookup.stdout }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  ); 
+{% endif %}  
+
+
+{% if inventory_hostname | ipaddr() %}
+INSERT or IGNORE INTO ip_addresses (ip_address, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key)
+  values (
+  "{{ inventory_hostname }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );  
+{% elif inventory_hostname != "" %}
+INSERT or IGNORE INTO host_names ( fqdn, description, ip_address, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ inventory_hostname }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+{% endif %}
+ 
+ 
+{% if inventory_lookup.stdout | ipaddr() %}
+INSERT or IGNORE INTO ip_addresses (ip_address, fqdn, description, dsa_key, rsa_key, ecdsa_key, ed25519_key)
+  values (
+  "{{ inventory_lookup.stdout }}",
+  "{{ ansible_fqdn }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );  
+{% elif inventory_lookup.stdout != "" %}
+INSERT or IGNORE INTO host_names ( fqdn, description, ip_address, dsa_key, rsa_key, ecdsa_key, ed25519_key ) 
+  values (
+  "{{ inventory_lookup.stdout }}",
+  "{{ ansible_env.PRETTY_HOSTNAME | default('') }}",
+  "{{ ansible_default_ipv4.address }}",
+  "{{ ansible_ssh_host_key_dsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_rsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ecdsa_public | default('NA') }}",
+  "{{ ansible_ssh_host_key_ed25519_public | default('NA') }}"
+  );
+{% endif %}
